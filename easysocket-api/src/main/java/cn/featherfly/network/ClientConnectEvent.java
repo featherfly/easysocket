@@ -9,5 +9,10 @@ package cn.featherfly.network;
  * @author zhongj
  */
 public interface ClientConnectEvent extends ClientEvent {
-
+    /**
+     * 返回connectSuccess
+     * 
+     * @return connectSuccess
+     */
+    boolean isConnectSuccess();
 }

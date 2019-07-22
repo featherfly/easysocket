@@ -17,6 +17,7 @@ public class EquipmentServerInitializer
         register.register(TestClientMsg.class, (short) 0);
         register.register(ClientRegistMsg.class, (short) 1);
         register.register(ResponseMsg.class, (short) 2);
+        register.register(BasicMsg.class, (short) 3);
 
         pipeline.addLast("decoder", new SerializableDecoder(register));
         pipeline.addLast("encoder", new SerializableEncoder(register));

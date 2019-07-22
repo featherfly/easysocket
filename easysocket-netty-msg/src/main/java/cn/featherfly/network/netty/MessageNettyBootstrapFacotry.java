@@ -8,7 +8,6 @@ import cn.featherfly.network.netty.codec.SerializableEncoder;
 import cn.featherfly.network.serialization.MessageTypeRegister;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -26,9 +25,7 @@ import io.netty.handler.timeout.IdleStateHandler;
  * 
  * @author zhongj
  */
-public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
-
-    private ChannelHandler clientHandler;
+public class MessageNettyBootstrapFacotry implements NettyBootstrapFacotry {
 
     private int connectTimeoutMillis = 10 * 1000;
 
@@ -38,32 +35,35 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
 
     private MessageTypeRegister messageTypeRegister;
 
+    private MessageNettyClientHandlerFactory handlerFactory;
+
     /**
-     * @param clientHandler
-     *            处理业务的handler
+     * 
+     * @param messageNettyClientHandlerFactory
      */
-    public SimpleNettyBootstrapFacotry(ChannelHandler clientHandler) {
-        super();
-        this.clientHandler = clientHandler;
+    public MessageNettyBootstrapFacotry(
+            MessageNettyClientHandlerFactory messageNettyClientHandlerFactory) {
+        this(messageNettyClientHandlerFactory, null);
     }
 
     /**
-     * @param clientHandler
-     * @param decoder
-     * @param encoder
+     * 
+     * @param messageNettyClientHandlerFactory
+     * @param messageTypeRegister
      */
-    public SimpleNettyBootstrapFacotry(ChannelHandler clientHandler,
+    public MessageNettyBootstrapFacotry(
+            MessageNettyClientHandlerFactory messageNettyClientHandlerFactory,
             MessageTypeRegister messageTypeRegister) {
-        super();
-        this.clientHandler = clientHandler;
+        handlerFactory = messageNettyClientHandlerFactory;
+        this.messageTypeRegister = messageTypeRegister;
     }
 
     /**
      * {@inheritDoc}
      */
+
     @Override
     public Bootstrap create() {
-
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         b.group(group).option(ChannelOption.SO_KEEPALIVE, soKeepAlive)
@@ -72,6 +72,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
                 .option(ChannelOption.TCP_NODELAY, tcpNoDelay)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<Channel>() {
+
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
@@ -86,7 +87,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
                                 .addLast("ping",
                                         new IdleStateHandler(60, 20, 60 * 10,
                                                 TimeUnit.SECONDS))
-                                .addLast("handler", clientHandler); // 客户端的逻辑
+                                .addLast("handler", handlerFactory.create()); // 客户端的逻辑
 
                     }
                 });
@@ -98,6 +99,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * 
      * @return connectTimeoutMillis
      */
+
     public int getConnectTimeoutMillis() {
         return connectTimeoutMillis;
     }
@@ -108,27 +110,9 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * @param connectTimeoutMillis
      *            connectTimeoutMillis
      */
+
     public void setConnectTimeoutMillis(int connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
-    }
-
-    /**
-     * 返回clientHandler
-     * 
-     * @return clientHandler
-     */
-    public ChannelHandler getClientHandler() {
-        return clientHandler;
-    }
-
-    /**
-     * 设置clientHandler
-     * 
-     * @param clientHandler
-     *            clientHandler
-     */
-    public void setClientHandler(ChannelHandler clientHandler) {
-        this.clientHandler = clientHandler;
     }
 
     /**
@@ -136,6 +120,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * 
      * @return soKeepAlive
      */
+
     public boolean isSoKeepAlive() {
         return soKeepAlive;
     }
@@ -146,6 +131,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * @param soKeepAlive
      *            soKeepAlive
      */
+
     public void setSoKeepAlive(boolean soKeepAlive) {
         this.soKeepAlive = soKeepAlive;
     }
@@ -155,6 +141,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * 
      * @return tcpNoDelay
      */
+
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
     }
@@ -165,6 +152,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * @param tcpNoDelay
      *            tcpNoDelay
      */
+
     public void setTcpNoDelay(boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
     }
@@ -174,6 +162,7 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * 
      * @return messageTypeRegister
      */
+
     public MessageTypeRegister getMessageTypeRegister() {
         return messageTypeRegister;
     }
@@ -184,8 +173,30 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      * @param messageTypeRegister
      *            messageTypeRegister
      */
+
     public void setMessageTypeRegister(
             MessageTypeRegister messageTypeRegister) {
         this.messageTypeRegister = messageTypeRegister;
     }
+
+    /**
+     * 返回handlerFactory
+     * 
+     * @return handlerFactory
+     */
+    public MessageNettyClientHandlerFactory getHandlerFactory() {
+        return handlerFactory;
+    }
+
+    /**
+     * 设置handlerFactory
+     * 
+     * @param handlerFactory
+     *            handlerFactory
+     */
+    public void setHandlerFactory(
+            MessageNettyClientHandlerFactory handlerFactory) {
+        this.handlerFactory = handlerFactory;
+    }
+
 }

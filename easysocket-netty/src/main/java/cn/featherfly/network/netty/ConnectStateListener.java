@@ -1,12 +1,9 @@
 package cn.featherfly.network.netty;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.featherfly.network.NetworkException;
-import cn.featherfly.network.NetworkExceptionCode;
+import cn.featherfly.network.Client.State;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
@@ -19,15 +16,11 @@ public class ConnectStateListener implements ChannelFutureListener {
 
     private NettyClient<?, ?> nettyClient;
 
-    private CompletableFuture<cn.featherfly.network.ClientConnectEvent> connectFuture;
-
     /**
      */
-    public ConnectStateListener(NettyClient<?, ?> nettyClient,
-            CompletableFuture<cn.featherfly.network.ClientConnectEvent> connectFuture) {
+    public ConnectStateListener(NettyClient<?, ?> nettyClient) {
         super();
         this.nettyClient = nettyClient;
-        this.connectFuture = connectFuture;
     }
 
     @Override
@@ -37,15 +30,20 @@ public class ConnectStateListener implements ChannelFutureListener {
             logger.debug("服务端[{}]链接成功...",
                     channelFuture.channel().remoteAddress());
             NettyClientConnectEvent event = new NettyClientConnectEvent(
-                    nettyClient.getRemoteAddress());
+                    nettyClient.getRemoteAddress(), true);
             nettyClient.fireConnect(event, channelFuture.channel());
-            connectFuture.complete(event);
         } else {
             logger.debug("服务端[{}]链接失败...",
                     channelFuture.channel().remoteAddress());
-            connectFuture.completeExceptionally(new NetworkException(
-                    NetworkExceptionCode.createConnectFailureCode(
-                            nettyClient.getRemoteAddress())));
+            NettyClientConnectEvent event = new NettyClientConnectEvent(
+                    nettyClient.getRemoteAddress(), false);
+            nettyClient.fireConnect(event, channelFuture.channel());
+
+            if (nettyClient.getState() == State.CONNECTING
+                    || nettyClient.getState() == State.CONNECTED) {
+                nettyClient.setState(State.PREPARATION);
+            }
+            System.out.println(nettyClient.getState());
             nettyClient.reconnect();
         }
     }

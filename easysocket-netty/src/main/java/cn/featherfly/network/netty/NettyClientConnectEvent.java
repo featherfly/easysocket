@@ -15,12 +15,16 @@ public class NettyClientConnectEvent
 
     private NetworkAddress remoteAddress;
 
+    private boolean connectSuccess;
+
     /**
      * @param remoteAddress
      */
-    protected NettyClientConnectEvent(NetworkAddress remoteAddress) {
+    protected NettyClientConnectEvent(NetworkAddress remoteAddress,
+            boolean connectSuccess) {
         super();
         this.remoteAddress = remoteAddress;
+        this.connectSuccess = connectSuccess;
     }
 
     /**
@@ -39,5 +43,24 @@ public class NettyClientConnectEvent
      */
     public void setRemoteAddress(NetworkAddress remoteAddress) {
         this.remoteAddress = remoteAddress;
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isConnectSuccess() {
+        return connectSuccess;
+    }
+
+    /**
+     * 设置connectSuccess
+     * 
+     * @param connectSuccess
+     *            connectSuccess
+     */
+    public void setConnectSuccess(boolean connectSuccess) {
+        this.connectSuccess = connectSuccess;
     }
 }

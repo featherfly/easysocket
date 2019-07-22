@@ -2,6 +2,7 @@
 package cn.featherfly.network.netty;
 
 import cn.featherfly.network.NetworkAddress;
+import cn.featherfly.network.serialization.MessageTypeRegister;
 
 /**
  * <p>
@@ -12,13 +13,13 @@ import cn.featherfly.network.NetworkAddress;
  */
 public class MessageNettyClientBuilder {
 
-    private MessageNettyClientHandler handler = new MessageNettyClientHandler(
-            new ClientIdCpuIdGenerator());
+    private MessageNettyClientHandlerFactory handlerFactory;
 
-    private NettyBootstrapFacotry facotry = new SimpleNettyBootstrapFacotry(
-            handler);
+    private MessageNettyBootstrapFacotry bootstrapFactory;
 
     private NetworkAddress networkAddress;
+
+    MessageTypeRegister messageTypeRegister;
 
     /**
      * @param networkAddress
@@ -35,8 +36,14 @@ public class MessageNettyClientBuilder {
      *            handler
      */
     public MessageNettyClientBuilder handler(
-            MessageNettyClientHandler handler) {
-        this.handler = handler;
+            MessageNettyClientHandlerFactory handlerFactory) {
+        this.handlerFactory = handlerFactory;
+        return this;
+    }
+
+    public MessageNettyClientBuilder messageTypeRegister(
+            MessageTypeRegister messageTypeRegister) {
+        this.messageTypeRegister = messageTypeRegister;
         return this;
     }
 
@@ -46,8 +53,9 @@ public class MessageNettyClientBuilder {
      * @param facotry
      *            facotry
      */
-    public MessageNettyClientBuilder facotry(NettyBootstrapFacotry facotry) {
-        this.facotry = facotry;
+    public MessageNettyClientBuilder bootstrap(
+            MessageNettyBootstrapFacotry bootstrapFactory) {
+        this.bootstrapFactory = bootstrapFactory;
         return this;
     }
 
@@ -64,9 +72,19 @@ public class MessageNettyClientBuilder {
     }
 
     public MessageNettyClient build() {
+        if (bootstrapFactory == null) {
+            bootstrapFactory = new MessageNettyBootstrapFacotry(null,
+                    messageTypeRegister);
+        }
+
         MessageNettyClient client = new MessageNettyClient(networkAddress,
-                facotry);
-        handler.setNettyClient(client);
+                bootstrapFactory);
+
+        if (handlerFactory == null) {
+            handlerFactory = new MessageNettyClientHandlerFactory(client);
+        }
+
+        bootstrapFactory.setHandlerFactory(handlerFactory);
         return client;
     }
 

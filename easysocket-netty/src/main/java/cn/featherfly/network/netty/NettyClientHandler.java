@@ -3,6 +3,7 @@ package cn.featherfly.network.netty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.featherfly.network.Client.State;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
@@ -63,6 +64,7 @@ public class NettyClientHandler<C extends NettyClient<S, R>, S, R>
         // 使用过程中断线重连
         nettyClient.fireDisconnect(
                 new NettyClientDisconnectEvent(nettyClient.getRemoteAddress()));
+        nettyClient.setState(State.DISCONEECTED);
         nettyClient.reconnect();
     }
 

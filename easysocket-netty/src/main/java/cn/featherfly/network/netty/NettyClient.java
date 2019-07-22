@@ -3,8 +3,6 @@ package cn.featherfly.network.netty;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,8 +48,6 @@ public class NettyClient<S, R> implements Client<S, R> {
 
     protected List<ClientReceiveListener<R>> receiveListeners = new ArrayList<>();
 
-    protected CompletableFuture<cn.featherfly.network.ClientConnectEvent> connectFuture;
-
     protected long reconnectTimes = 0;
 
     protected boolean autoReconnect = true;
@@ -78,6 +74,7 @@ public class NettyClient<S, R> implements Client<S, R> {
     }
 
     void reconnect() {
+        logger.debug("reconnect");
         // 表示手动关闭，不再重连
         if (disconnect) {
             return;
@@ -106,7 +103,7 @@ public class NettyClient<S, R> implements Client<S, R> {
             System.err.println(
                     "Thread.activeCount() ... " + Thread.activeCount());
             logger.debug("start reconnecting to server {}", remoteAddress);
-            connect();
+            startConnect();
         }, delay, delayUnit);
     }
 
@@ -114,51 +111,50 @@ public class NettyClient<S, R> implements Client<S, R> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized CompletionStage<cn.featherfly.network.ClientConnectEvent> connect() {
+    public synchronized void connect() {
         // 如果已经发起连接或者已经连接上，则直接返回connectFuture;
         if (state == State.CONNECTING || state == State.CONNECTED) {
-            return connectFuture;
+
         }
         state = State.CONNECTING;
-        connectFuture = new CompletableFuture<>();
+        // connectFuture = new CompletableFuture<>();
         new Thread(() -> {
-            try {
-                bootstrap = facotry.create();
-                // 连接服务端
-                ChannelFuture channelFuture = bootstrap.connect(
-                        remoteAddress.getHost(), remoteAddress.getPort());
-
-                channelFuture.addListener(
-                        new ConnectStateListener(this, connectFuture));
-                // Channel channel = f.sync().channel();
-                channelFuture.channel().closeFuture().sync();
-
-            } catch (InterruptedException e) {
-                logger.debug(e.getMessage(), e);
-            } finally {
-                // The connection is closed automatically on shutdown.
-                logger.debug("group.shutdownGracefully()");
-                state = State.DISCONEECTED;
-                bootstrap.config().group().shutdownGracefully();
-            }
+            startConnect();
         }).start();
-        return connectFuture;
+    }
+
+    private synchronized void startConnect() {
+        try {
+            bootstrap = facotry.create();
+            // 连接服务端
+            ChannelFuture channelFuture = bootstrap
+                    .connect(remoteAddress.getHost(), remoteAddress.getPort());
+
+            channelFuture.addListener(new ConnectStateListener(this));
+            // Channel channel = f.sync().channel();
+            channelFuture.channel().closeFuture().sync();
+
+        } catch (InterruptedException e) {
+            logger.debug(e.getMessage(), e);
+        } finally {
+            // The connection is closed automatically on shutdown.
+            logger.debug("group.shutdownGracefully()");
+            state = State.DISCONEECTED;
+            bootstrap.config().group().shutdownGracefully();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public CompletionStage<ClientDisconnectEvent> disconnect() {
+    public void disconnect() {
         disconnect = true;
-        CompletableFuture<ClientDisconnectEvent> future = new CompletableFuture<>();
         bootstrap.config().group().shutdownGracefully().addListener(f -> {
             cn.featherfly.network.netty.NettyClientDisconnectEvent event = new cn.featherfly.network.netty.NettyClientDisconnectEvent(
                     remoteAddress);
-            future.complete(event);
             fireDisconnect(event);
         });
-        return future;
     }
 
     /**

@@ -1,8 +1,6 @@
 
 package cn.featherfly.network;
 
-import java.util.concurrent.CompletionStage;
-
 /**
  * <p>
  * Client
@@ -16,11 +14,11 @@ public interface Client<S, R> {
         PREPARATION, CONNECTING, CONNECTED, DISCONEECTED;
     }
 
-    CompletionStage<ClientConnectEvent> connect();
+    void connect();
 
     void send(S sending);
 
-    CompletionStage<ClientDisconnectEvent> disconnect();
+    void disconnect();
 
     <C extends Client<S, R>> C onReceive(ClientReceiveListener<R> listener);
 
