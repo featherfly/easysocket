@@ -65,11 +65,13 @@ public class NettyChannelsHolder {
         }
     }
 
-    public void pushToClient(Msg pushData, String clientId) {
-        if (clientIdChannelMap.size() == 0) {
-            return;
+    public boolean pushToClient(Msg pushData, String clientId) {
+        Channel channel = getChannel(clientId);
+        if (channel != null) {
+            channel.writeAndFlush(pushData);
+            return true;
         }
-        getChannel(clientId).writeAndFlush(pushData);
+        return false;
     }
 
 }

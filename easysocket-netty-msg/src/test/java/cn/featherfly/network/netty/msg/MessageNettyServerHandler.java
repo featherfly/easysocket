@@ -14,7 +14,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class MessageNettyServerHandler
         extends SimpleChannelInboundHandler<Msg> {
 
-    private NettyChannelsHolder channelMap = NettyChannelsHolder.getInstance();
+    private NettyChannelsHolder channelHolder = NettyChannelsHolder
+            .getInstance();
 
     /**
      */
@@ -35,7 +36,7 @@ public class MessageNettyServerHandler
         } else if (msg instanceof ClientRegistMsg) {
             // 客户端注册消息
             ClientMsg clientRegistMsg = (ClientMsg) msg;
-            Channel channel = channelMap
+            Channel channel = channelHolder
                     .addChannel(clientRegistMsg.getClientId(), ctx.channel());
             if (channel != null) {
                 String message = String.format(
@@ -90,14 +91,14 @@ public class MessageNettyServerHandler
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         // 移除客户端channel
-        channelMap.removeChannel(ctx.channel());
+        channelHolder.removeChannel(ctx.channel());
         System.out.println("RamoteAddress : " + ctx.channel().remoteAddress()
                 + " inactive !");
         super.channelInactive(ctx);
     }
 
     public CompletionStage<ResponseMsg> push(ClientMsg data) {
-        Channel channel = channelMap.getChannel(data.getClientId());
+        Channel channel = channelHolder.getChannel(data.getClientId());
         CompletableFuture<ResponseMsg> future = new CompletableFuture<>();
         if (channel == null) {
             ResponseMsg response = createResponse();
@@ -107,6 +108,7 @@ public class MessageNettyServerHandler
         } else {
             channel.writeAndFlush(data);
             return MessageManager.getMessageManager(this).putSendMessage(data);
+
         }
         return future;
     }
