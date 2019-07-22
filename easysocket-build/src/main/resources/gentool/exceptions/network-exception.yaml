@@ -1,0 +1,60 @@
+author: "zhongj"
+packageName: "cn.featherfly.network"
+exception:
+  packageName: "cn.featherfly.network"
+  name: "NetworkException"
+  descp: null
+  author: "zhongj"
+code:
+  packageName: "cn.featherfly.network"
+  name: "NetworkExceptionCode"
+  descp: null
+  author: "zhongj"
+  module: "EASYSOCKET"
+  codes:
+  - num: 10000
+    key: "not_implemented"
+    name: "NotImplemented"
+    messages:
+      zh: "该方法未实现"
+      en: "method not implemented"
+  - num: 10001
+    key: "connect_failure"
+    name: "ConnectFailure"
+    messages:
+      zh: "与[{0}]建立连接失败"
+      en: "connect to [{0}] failure"
+    argus:
+    - type: "cn.featherfly.network.NetworkAddress"
+      name: "networkAddress"
+  - num: 10002
+    key: "not_connected"
+    name: "NotConnected"
+    messages:
+      zh: "连接[{0}]没有建立"
+      en: "connection[{0}] is not connected"
+    argus:
+    - type: "cn.featherfly.network.NetworkAddress"
+      name: "networkAddress"
+  - num: 10003
+    key: "serialize_error"
+    name: "SerializeError"
+    messages:
+      zh: "序列化[{0}]出错 -> {1}"
+      en: "serialize [{0}] error -> {1}"
+    argus:
+    - type: "java.lang.String"
+      name: "className"
+    - type: "java.lang.String"
+      name: "errorMessage"
+  - num: 10004
+    key: "deserialize_error"
+    name: "DeserializeError"
+    messages:
+      zh: "反序列化[{0}]出错 -> {1}"
+      en: "deserialize [{0}] error -> {1}"
+    argus:
+    - type: "java.lang.String"
+      name: "className"
+    - type: "java.lang.String"
+      name: "errorMessage"

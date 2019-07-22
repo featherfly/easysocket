@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":easysocket-api")
+    compile project(":easysocket-netty")
+  
+}

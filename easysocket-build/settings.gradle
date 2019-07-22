@@ -1,0 +1,4 @@
+rootProject.name = 'easysocket-build'
+includeFlat 'easysocket-api'
+includeFlat 'easysocket-netty'
+includeFlat 'easysocket-netty-msg'
