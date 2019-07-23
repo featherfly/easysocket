@@ -12,7 +12,7 @@ import cn.featherfly.network.netty.msg.BasicMsg;
 import cn.featherfly.network.netty.msg.ClientRegistMsg;
 import cn.featherfly.network.netty.msg.Msg;
 import cn.featherfly.network.netty.msg.ResponseMsg;
-import cn.featherfly.network.netty.msg.TransmitMsg;
+import cn.featherfly.network.netty.msg.ServerToClientMessage;
 import io.netty.channel.Channel;
 
 /**
@@ -68,9 +68,9 @@ public class MessageNettyServer extends NettyServer<Msg, Msg, ResponseMsg> imple
                 response.setSuccess(true);
                 response.setMessage("客户端注册成功");
                 event.setResponse(response);
-            } else if (event.getReceive() instanceof TransmitMsg) {
-                TransmitMsg transmitMsg = (TransmitMsg) event.getReceive();
-                sendAndReceive(transmitMsg.getToClientId(), event.getReceive()).whenComplete((r, t) -> {
+            } else if (event.getReceive() instanceof ServerToClientMessage) {
+                ServerToClientMessage serverToClientMessage = (ServerToClientMessage) event.getReceive();
+                sendAndReceive(serverToClientMessage.getToClientId(), event.getReceive()).whenComplete((r, t) -> {
                     // TODO 这里可以做同步等待
                 });
                 ResponseMsg response = new ResponseMsg();

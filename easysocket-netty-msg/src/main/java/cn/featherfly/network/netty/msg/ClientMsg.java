@@ -8,17 +8,40 @@ package cn.featherfly.network.netty.msg;
  *
  * @author zhongj
  */
-public abstract class ClientMsg extends Msg {
+public abstract class ClientMsg extends Msg implements ClientToServerMessage {
 
     protected String token;
 
     protected Integer secrecy;
+
+    protected String clientId;
+
+    /**
+     * 返回clientId
+     *
+     * @return clientId
+     */
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    /**
+     * 设置clientId
+     *
+     * @param clientId clientId
+     */
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
     /**
      * 返回token
      *
      * @return token
      */
+    @Override
     public String getToken() {
         return token;
     }
@@ -28,6 +51,7 @@ public abstract class ClientMsg extends Msg {
      *
      * @param token token
      */
+    @Override
     public void setToken(String token) {
         this.token = token;
     }
@@ -37,6 +61,7 @@ public abstract class ClientMsg extends Msg {
      *
      * @return secrecy
      */
+    @Override
     public Integer getSecrecy() {
         return secrecy;
     }
@@ -46,6 +71,7 @@ public abstract class ClientMsg extends Msg {
      *
      * @param secrecy secrecy
      */
+    @Override
     public void setSecrecy(Integer secrecy) {
         this.secrecy = secrecy;
     }

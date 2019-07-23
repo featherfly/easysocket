@@ -72,4 +72,22 @@ public class TestClientMsg extends ClientMsg {
         return "TestClientMsg [message=" + message + ", token=" + token + ", secrecy=" + secrecy + ", id=" + id + "]";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getClientId() {
+        // YUFEI_TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setClientId(String clientId) {
+        // YUFEI_TODO Auto-generated method stub
+
+    }
+
 }

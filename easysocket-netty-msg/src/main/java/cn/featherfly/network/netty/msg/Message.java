@@ -3,12 +3,14 @@ package cn.featherfly.network.netty.msg;
 
 /**
  * <p>
- * TransmitMsg
+ * Message
  * </p>
  *
  * @author zhongj
  */
-public interface TransmitMsg {
+public interface Message {
 
-    String getToClientId();
+    String getId();
+
+    void setId(String id);
 }

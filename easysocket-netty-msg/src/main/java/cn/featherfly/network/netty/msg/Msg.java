@@ -8,7 +8,7 @@ package cn.featherfly.network.netty.msg;
  *
  * @author zhongj
  */
-public abstract class Msg {
+public abstract class Msg implements Message {
 
     protected String id;
 
@@ -17,6 +17,7 @@ public abstract class Msg {
      *
      * @return id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -26,6 +27,7 @@ public abstract class Msg {
      *
      * @param id id
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
