@@ -1,10 +1,9 @@
 
-package cn.featherfly.network.netty;
+package cn.featherfly.network.netty.server;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.featherfly.network.netty.msg.Msg;
 import io.netty.channel.Channel;
 
 /**
@@ -16,16 +15,21 @@ import io.netty.channel.Channel;
  */
 public class NettyChannelsHolder {
 
-    private Map<String, Channel> clientIdChannelMap = new ConcurrentHashMap<>();
+    private static final Map<Object, NettyChannelsHolder> HOLDERS = new ConcurrentHashMap<>();
 
-    private static NettyChannelsHolder instance = new NettyChannelsHolder();
+    private Map<String, Channel> clientIdChannelMap = new ConcurrentHashMap<>();
 
     private NettyChannelsHolder() {
 
     }
 
-    public static NettyChannelsHolder getInstance() {
-        return instance;
+    public static synchronized NettyChannelsHolder getInstance(Object holder) {
+        NettyChannelsHolder channelsHolder = HOLDERS.get(holder);
+        if (channelsHolder == null) {
+            channelsHolder = new NettyChannelsHolder();
+            HOLDERS.put(holder, channelsHolder);
+        }
+        return channelsHolder;
     }
 
     public Channel addChannel(String clientId, Channel channel) {
@@ -44,8 +48,7 @@ public class NettyChannelsHolder {
         if (clientIdChannelMap.containsValue(channel)) {// 查看是否包含
             String key = null;
             Channel value = null;
-            for (Map.Entry<String, Channel> entry : clientIdChannelMap
-                    .entrySet()) {
+            for (Map.Entry<String, Channel> entry : clientIdChannelMap.entrySet()) {
                 key = entry.getKey();
                 value = entry.getValue();
                 if (value == channel) {
@@ -56,19 +59,19 @@ public class NettyChannelsHolder {
         }
     }
 
-    public void pushToAllClient(Msg pushData) {
+    public void pushToAllClient(Object msg) {
         if (clientIdChannelMap.size() == 0) {
             return;
         }
         for (Channel channel : clientIdChannelMap.values()) {
-            channel.writeAndFlush(pushData);
+            channel.writeAndFlush(msg);
         }
     }
 
-    public boolean pushToClient(Msg pushData, String clientId) {
+    public boolean pushToClient(Object msg, String clientId) {
         Channel channel = getChannel(clientId);
         if (channel != null) {
-            channel.writeAndFlush(pushData);
+            channel.writeAndFlush(msg);
             return true;
         }
         return false;

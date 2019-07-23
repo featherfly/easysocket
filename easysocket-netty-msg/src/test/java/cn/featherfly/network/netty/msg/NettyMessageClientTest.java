@@ -10,18 +10,20 @@ import cn.featherfly.network.serialization.MessageTypeRegister;
  * <p>
  * NettyMessageClientTest
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class NettyMessageClientTest {
-
-    public static void main(String[] args) {
-
-        MessageTypeRegister register = new MessageTypeRegister();
+    static MessageTypeRegister register;
+    static {
+        register = new MessageTypeRegister();
         register.register(TestClientMsg.class, (short) 0);
         register.register(ClientRegistMsg.class, (short) 1);
         register.register(ResponseMsg.class, (short) 2);
         register.register(BasicMsg.class, (short) 3);
+    }
+
+    public static void main(String[] args) {
 
         // MessageNettyBootstrapFacotry bootstrapFacotry = new
         // MessageNettyBootstrapFacotry();
@@ -29,8 +31,7 @@ public class NettyMessageClientTest {
         // MessageNettyClientHandlerFactory(
         // null);
         MessageNettyClient client = new MessageNettyClientBuilder(
-                new NetworkAddress("127.0.0.1", NettyMessageServerTest.port))
-                        .messageTypeRegister(register).build();
+                new NetworkAddress("127.0.0.1", NettyMessageServerTest.port)).messageTypeRegister(register).build();
 
         // MessageNettyClient client = new MessageNettyClientBuilder(
         // new NetworkAddress("127.0.0.1", NettyMessageServerTest.port))
@@ -47,18 +48,19 @@ public class NettyMessageClientTest {
             //
 
         }).onConnect(l -> {
+            System.out.println("onConnect");
             if (l.isConnectSuccess()) {
                 System.out.println("connected success " + l.getRemoteAddress());
 
                 int i = 0;
-                while (i++ < 2) {
+                while (i < 2) {
+                    i++;
                     TestClientMsg msg = new TestClientMsg();
                     msg.setMessage("测试测试_" + i);
                     client.sendAndReceive(msg).whenComplete((res, e) -> {
                         System.out.println("send success and recevie" + res);
                     }).exceptionally(e -> {
-                        System.out.println(
-                                "send error " + e.getLocalizedMessage());
+                        System.out.println("send error " + e.getLocalizedMessage());
                         e.printStackTrace();
                         return null;
                     });

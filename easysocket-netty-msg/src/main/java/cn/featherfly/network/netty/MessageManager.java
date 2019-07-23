@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import cn.featherfly.common.lang.UUIDGenerator;
 import cn.featherfly.network.netty.msg.Msg;
 import cn.featherfly.network.netty.msg.ResponseMsg;
+import io.netty.channel.Channel;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ public class MessageManager {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final Map<Object, MessageManager> HANDLER_MESSAGE_MANAGERS = new HashMap<>();
+    private static final Map<Channel, MessageManager> HANDLER_MESSAGE_MANAGERS = new HashMap<>();
 
     private final Map<String, CompletableFuture<ResponseMsg>> messages = new ConcurrentHashMap<>();
 
@@ -35,11 +36,24 @@ public class MessageManager {
 
     }
 
-    public static MessageManager getMessageManager(Object handler) {
+    public static MessageManager getMessageManager(Channel handler) {
         MessageManager manager = HANDLER_MESSAGE_MANAGERS.get(handler);
-        if (manager == null) {
-            manager = new MessageManager();
-            HANDLER_MESSAGE_MANAGERS.put(handler, manager);
+        synchronized (HANDLER_MESSAGE_MANAGERS) {
+            if (manager == null) {
+                manager = new MessageManager();
+                HANDLER_MESSAGE_MANAGERS.put(handler, manager);
+            }
+        }
+        return manager;
+    }
+
+    public static MessageManager removeMessageManager(Channel handler) {
+        MessageManager manager = HANDLER_MESSAGE_MANAGERS.get(handler);
+        synchronized (HANDLER_MESSAGE_MANAGERS) {
+            if (manager == null) {
+                manager = new MessageManager();
+                HANDLER_MESSAGE_MANAGERS.put(handler, manager);
+            }
         }
         return manager;
     }

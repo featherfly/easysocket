@@ -7,7 +7,7 @@ import cn.featherfly.common.lang.ArrayUtils;
  * <p>
  * TestClientMsg
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class TestClientMsg extends ClientMsg {
@@ -27,7 +27,7 @@ public class TestClientMsg extends ClientMsg {
 
     private static byte[] toByteArray(short iSource) {
         byte[] bLocalArr = new byte[Short.BYTES];
-        for (int i = 0; (i < 4) && (i < Short.BYTES); i++) {
+        for (int i = 0; i < 4 && i < Short.BYTES; i++) {
             bLocalArr[i] = (byte) (iSource >> 8 * i & 0xFF);
         }
         return bLocalArr;
@@ -39,7 +39,7 @@ public class TestClientMsg extends ClientMsg {
 
         for (int i = 0; i < bRefArr.length; i++) {
             bLoop = bRefArr[i];
-            iOutcome += (bLoop & 0xFF) << (8 * i);
+            iOutcome += (bLoop & 0xFF) << 8 * i;
         }
         return iOutcome;
     }
@@ -48,7 +48,7 @@ public class TestClientMsg extends ClientMsg {
 
     /**
      * 返回message
-     * 
+     *
      * @return message
      */
     public String getMessage() {
@@ -57,9 +57,8 @@ public class TestClientMsg extends ClientMsg {
 
     /**
      * 设置message
-     * 
-     * @param message
-     *            message
+     *
+     * @param message message
      */
     public void setMessage(String message) {
         this.message = message;
@@ -70,9 +69,7 @@ public class TestClientMsg extends ClientMsg {
      */
     @Override
     public String toString() {
-        return "TestClientMsg [message=" + message + ", token=" + token
-                + ", secrecy=" + secrecy + ", clientId=" + clientId
-                + ", sender=" + sender + ", id=" + id + "]";
+        return "TestClientMsg [message=" + message + ", token=" + token + ", secrecy=" + secrecy + ", id=" + id + "]";
     }
 
 }

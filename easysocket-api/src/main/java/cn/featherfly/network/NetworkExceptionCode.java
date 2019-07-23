@@ -54,13 +54,15 @@ public class NetworkExceptionCode extends cn.featherfly.common.exception.SimpleL
     
     /**
      * <p>
-     * create NotImplementedCode
+     * create NoRegisteredClientCode
      * </p>
+     * @param clientId clientId
      * 
-     * @return NotImplementedCode
+     * @return NoRegisteredClientCode
      */
-    public static NetworkExceptionCode createNotImplementedCode() {
-        return new NetworkExceptionCode(10000, "not_implemented");
+    public static NetworkExceptionCode createNoRegisteredClientCode(java.lang.String clientId) {
+        return new NetworkExceptionCode(10000, "no_registered_client",
+                new Object[] {clientId});
     }
     
     /**

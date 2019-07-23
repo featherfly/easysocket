@@ -13,11 +13,14 @@ code:
   module: "EASYSOCKET"
   codes:
   - num: 10000
-    key: "not_implemented"
-    name: "NotImplemented"
+    key: "no_registered_client"
+    name: "NoRegisteredClient"
     messages:
-      zh: "该方法未实现"
-      en: "method not implemented"
+      zh: "没有找到注册的客户端唯一识别码 {}"
+      en: "not find register client id {}"
+    argus:
+    - type: "java.lang.String"
+      name: "clientId"
   - num: 10001
     key: "connect_failure"
     name: "ConnectFailure"

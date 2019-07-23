@@ -1,13 +1,16 @@
 package cn.featherfly.network.netty.msg;
 
+import cn.featherfly.network.ClientConnectListener;
+import cn.featherfly.network.ClientDisconnectListener;
 import cn.featherfly.network.Server;
+import cn.featherfly.network.ServerReceiveListener;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class EquipmentServer implements Server<Msg, ResponseMsg, String> {
+public class EquipmentServer implements Server<Msg, Msg, ResponseMsg> {
 
     private int port;
 
@@ -19,6 +22,7 @@ public class EquipmentServer implements Server<Msg, ResponseMsg, String> {
         this.port = port;
     }
 
+    @Override
     public void start() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -44,5 +48,64 @@ public class EquipmentServer implements Server<Msg, ResponseMsg, String> {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() {
+        // YUFEI_TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <C extends Server<Msg, Msg, ResponseMsg>> C onClientConnect(ClientConnectListener listener) {
+        // YUFEI_TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <C extends Server<Msg, Msg, ResponseMsg>> C onReceive(ServerReceiveListener<Msg, ResponseMsg> listener) {
+        // YUFEI_TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <C extends Server<Msg, Msg, ResponseMsg>> C onClientDisconnect(ClientDisconnectListener listener) {
+        // YUFEI_TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void send(String clientId, Msg sending) {
+        // YUFEI_TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sendAll(Msg sending) {
+        // YUFEI_TODO Auto-generated method stub
+
+    }
+
+    public static void main(String[] args) {
+        EquipmentServer server = new EquipmentServer(NettyMessageServerTest.port);
+        server.start();
     }
 }

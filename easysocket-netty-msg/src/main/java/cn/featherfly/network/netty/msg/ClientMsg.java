@@ -14,8 +14,6 @@ public abstract class ClientMsg extends Msg {
 
     protected Integer secrecy;
 
-    protected String clientId;
-
     /**
      * 返回token
      *
@@ -28,8 +26,7 @@ public abstract class ClientMsg extends Msg {
     /**
      * 设置token
      *
-     * @param token
-     *            token
+     * @param token token
      */
     public void setToken(String token) {
         this.token = token;
@@ -47,30 +44,10 @@ public abstract class ClientMsg extends Msg {
     /**
      * 设置secrecy
      *
-     * @param secrecy
-     *            secrecy
+     * @param secrecy secrecy
      */
     public void setSecrecy(Integer secrecy) {
         this.secrecy = secrecy;
-    }
-
-    /**
-     * 返回clientId
-     *
-     * @return clientId
-     */
-    public String getClientId() {
-        return clientId;
-    }
-
-    /**
-     * 设置clientId
-     *
-     * @param clientId
-     *            clientId
-     */
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
     }
 
     /**
@@ -78,8 +55,6 @@ public abstract class ClientMsg extends Msg {
      */
     @Override
     public String toString() {
-        return "ClientMsg [token=" + token + ", secrecy=" + secrecy
-                + ", clientId=" + clientId + ", sender=" + sender + ", id=" + id
-                + "]";
+        return "ClientMsg [token=" + token + ", secrecy=" + secrecy + ", id=" + id + "]";
     }
 }

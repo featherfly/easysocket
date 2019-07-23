@@ -7,11 +7,10 @@ import cn.featherfly.network.NetworkAddress;
  * <p>
  * ClientDisconnectEvent
  * </p>
- * 
+ *
  * @author zhongj
  */
-public class NettyClientConnectEvent
-        implements cn.featherfly.network.ClientConnectEvent {
+public class NettyClientConnectEvent implements cn.featherfly.network.ClientConnectEvent {
 
     private NetworkAddress remoteAddress;
 
@@ -20,8 +19,7 @@ public class NettyClientConnectEvent
     /**
      * @param remoteAddress
      */
-    protected NettyClientConnectEvent(NetworkAddress remoteAddress,
-            boolean connectSuccess) {
+    public NettyClientConnectEvent(NetworkAddress remoteAddress, boolean connectSuccess) {
         super();
         this.remoteAddress = remoteAddress;
         this.connectSuccess = connectSuccess;
@@ -37,16 +35,14 @@ public class NettyClientConnectEvent
 
     /**
      * 设置remoteAddress
-     * 
-     * @param remoteAddress
-     *            remoteAddress
+     *
+     * @param remoteAddress remoteAddress
      */
     public void setRemoteAddress(NetworkAddress remoteAddress) {
         this.remoteAddress = remoteAddress;
     }
 
     /**
-     * 
      * {@inheritDoc}
      */
     @Override
@@ -56,9 +52,8 @@ public class NettyClientConnectEvent
 
     /**
      * 设置connectSuccess
-     * 
-     * @param connectSuccess
-     *            connectSuccess
+     *
+     * @param connectSuccess connectSuccess
      */
     public void setConnectSuccess(boolean connectSuccess) {
         this.connectSuccess = connectSuccess;

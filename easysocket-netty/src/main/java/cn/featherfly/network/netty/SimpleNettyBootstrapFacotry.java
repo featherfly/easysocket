@@ -8,7 +8,6 @@ import cn.featherfly.network.netty.codec.SerializableEncoder;
 import cn.featherfly.network.serialization.MessageTypeRegister;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -23,39 +22,30 @@ import io.netty.handler.timeout.IdleStateHandler;
  * <p>
  * SimpleNettyBootstrapFacotry
  * </p>
- * 
+ *
  * @author zhongj
  */
-public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
+public class SimpleNettyBootstrapFacotry<H extends NettyClientHandler<C, S, R>, C extends NettyClient<S, R>, S, R>
+        extends NettyBootstrapConfig implements NettyBootstrapFacotry {
 
-    private ChannelHandler clientHandler;
-
-    private int connectTimeoutMillis = 10 * 1000;
-
-    private boolean soKeepAlive = true;
-
-    private boolean tcpNoDelay = true;
-
-    private MessageTypeRegister messageTypeRegister;
+    private NettyClientHandlerFactory<H, C, S, R> handlerFactory;
 
     /**
-     * @param clientHandler
-     *            处理业务的handler
+     * @param handlerFactory 处理业务的handler创建工厂
      */
-    public SimpleNettyBootstrapFacotry(ChannelHandler clientHandler) {
-        super();
-        this.clientHandler = clientHandler;
+    public SimpleNettyBootstrapFacotry(NettyClientHandlerFactory<H, C, S, R> handlerFactory) {
+        this(handlerFactory, null);
     }
 
     /**
-     * @param clientHandler
-     * @param decoder
-     * @param encoder
+     * @param handlerFactory      处理业务的handler创建工厂
+     * @param messageTypeRegister 消息类型注册器
      */
-    public SimpleNettyBootstrapFacotry(ChannelHandler clientHandler,
+    public SimpleNettyBootstrapFacotry(NettyClientHandlerFactory<H, C, S, R> handlerFactory,
             MessageTypeRegister messageTypeRegister) {
         super();
-        this.clientHandler = clientHandler;
+        this.handlerFactory = handlerFactory;
+        this.messageTypeRegister = messageTypeRegister;
     }
 
     /**
@@ -63,30 +53,21 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
      */
     @Override
     public Bootstrap create() {
-
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         b.group(group).option(ChannelOption.SO_KEEPALIVE, soKeepAlive)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                        connectTimeoutMillis) // 超时时间
-                .option(ChannelOption.TCP_NODELAY, tcpNoDelay)
-                .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis) // 超时时间
+                .option(ChannelOption.TCP_NODELAY, tcpNoDelay).channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
                         // 请求日志
                         pipeline.addLast(new LoggingHandler(LogLevel.INFO)) // 日志打印
-                                .addLast("decoder",
-                                        new SerializableDecoder(
-                                                messageTypeRegister))
-                                .addLast("encoder",
-                                        new SerializableEncoder(
-                                                messageTypeRegister))
-                                .addLast("ping",
-                                        new IdleStateHandler(60, 20, 60 * 10,
-                                                TimeUnit.SECONDS))
-                                .addLast("handler", clientHandler); // 客户端的逻辑
+                                .addLast("decoder", new SerializableDecoder(messageTypeRegister))
+                                .addLast("encoder", new SerializableEncoder(messageTypeRegister))
+                                .addLast("ping", new IdleStateHandler(60, 20, 60 * 10, TimeUnit.SECONDS))
+                                .addLast("handler", handlerFactory.create()); // 客户端的逻辑
 
                     }
                 });
@@ -94,98 +75,20 @@ public class SimpleNettyBootstrapFacotry implements NettyBootstrapFacotry {
     }
 
     /**
-     * 返回connectTimeoutMillis
+     * 返回handlerFactory
      * 
-     * @return connectTimeoutMillis
+     * @return handlerFactory
      */
-    public int getConnectTimeoutMillis() {
-        return connectTimeoutMillis;
+    public NettyClientHandlerFactory<H, C, S, R> getHandlerFactory() {
+        return handlerFactory;
     }
 
     /**
-     * 设置connectTimeoutMillis
+     * 设置handlerFactory
      * 
-     * @param connectTimeoutMillis
-     *            connectTimeoutMillis
+     * @param handlerFactory handlerFactory
      */
-    public void setConnectTimeoutMillis(int connectTimeoutMillis) {
-        this.connectTimeoutMillis = connectTimeoutMillis;
-    }
-
-    /**
-     * 返回clientHandler
-     * 
-     * @return clientHandler
-     */
-    public ChannelHandler getClientHandler() {
-        return clientHandler;
-    }
-
-    /**
-     * 设置clientHandler
-     * 
-     * @param clientHandler
-     *            clientHandler
-     */
-    public void setClientHandler(ChannelHandler clientHandler) {
-        this.clientHandler = clientHandler;
-    }
-
-    /**
-     * 返回soKeepAlive
-     * 
-     * @return soKeepAlive
-     */
-    public boolean isSoKeepAlive() {
-        return soKeepAlive;
-    }
-
-    /**
-     * 设置soKeepAlive
-     * 
-     * @param soKeepAlive
-     *            soKeepAlive
-     */
-    public void setSoKeepAlive(boolean soKeepAlive) {
-        this.soKeepAlive = soKeepAlive;
-    }
-
-    /**
-     * 返回tcpNoDelay
-     * 
-     * @return tcpNoDelay
-     */
-    public boolean isTcpNoDelay() {
-        return tcpNoDelay;
-    }
-
-    /**
-     * 设置tcpNoDelay
-     * 
-     * @param tcpNoDelay
-     *            tcpNoDelay
-     */
-    public void setTcpNoDelay(boolean tcpNoDelay) {
-        this.tcpNoDelay = tcpNoDelay;
-    }
-
-    /**
-     * 返回messageTypeRegister
-     * 
-     * @return messageTypeRegister
-     */
-    public MessageTypeRegister getMessageTypeRegister() {
-        return messageTypeRegister;
-    }
-
-    /**
-     * 设置messageTypeRegister
-     * 
-     * @param messageTypeRegister
-     *            messageTypeRegister
-     */
-    public void setMessageTypeRegister(
-            MessageTypeRegister messageTypeRegister) {
-        this.messageTypeRegister = messageTypeRegister;
+    public void setHandlerFactory(NettyClientHandlerFactory<H, C, S, R> handlerFactory) {
+        this.handlerFactory = handlerFactory;
     }
 }

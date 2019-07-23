@@ -5,12 +5,12 @@ package cn.featherfly.network;
  * <p>
  * Client
  * </p>
- * 
+ *
  * @author zhongj
  */
 public interface Client<S, R> {
 
-    public static enum State {
+    public enum State {
         PREPARATION, CONNECTING, CONNECTED, DISCONEECTED;
     }
 
@@ -22,7 +22,7 @@ public interface Client<S, R> {
 
     <C extends Client<S, R>> C onReceive(ClientReceiveListener<R> listener);
 
-    <C extends Client<S, R>> C onConnect(ClientConnectListener<R> listener);
+    <C extends Client<S, R>> C onConnect(ClientConnectListener listener);
 
     <C extends Client<S, R>> C onDisconnect(ClientDisconnectListener listener);
 

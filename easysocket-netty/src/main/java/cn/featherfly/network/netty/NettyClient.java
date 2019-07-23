@@ -27,7 +27,7 @@ import io.netty.channel.ChannelFuture;
  * <p>
  * NettyClient
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class NettyClient<S, R> implements Client<S, R> {
@@ -42,7 +42,7 @@ public class NettyClient<S, R> implements Client<S, R> {
 
     protected Bootstrap bootstrap;
 
-    protected List<ClientConnectListener<R>> connectListeners = new ArrayList<>();
+    protected List<ClientConnectListener> connectListeners = new ArrayList<>();
 
     protected List<ClientDisconnectListener> disconnectListeners = new ArrayList<>();
 
@@ -59,15 +59,12 @@ public class NettyClient<S, R> implements Client<S, R> {
     protected boolean disconnect;
 
     // 每一个客户端对象单独维护自己的重连接线程
-    private ScheduledExecutorService scheduledExecutorService = Executors
-            .newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     /**
-     * @param networkAddress
-     *            networkAddress
+     * @param networkAddress networkAddress
      */
-    public NettyClient(NetworkAddress networkAddress,
-            NettyBootstrapFacotry facotry) {
+    public NettyClient(NetworkAddress networkAddress, NettyBootstrapFacotry facotry) {
         super();
         this.remoteAddress = networkAddress;
         this.facotry = facotry;
@@ -92,16 +89,13 @@ public class NettyClient<S, R> implements Client<S, R> {
         reconnectTimes++;
         TimeUnit delayUnit = TimeUnit.SECONDS;
         long delay = 2L;
-        if (reConnectPolicy != null
-                && reConnectPolicy.isReconnectable(reconnectTimes)) {
+        if (reConnectPolicy != null && reConnectPolicy.isReconnectable(reconnectTimes)) {
             delay = reConnectPolicy.getDelay(reconnectTimes);
         }
-        logger.debug("Reconnect to server {} after {} {}", remoteAddress, delay,
-                delayUnit);
+        logger.debug("Reconnect to server {} after {} {}", remoteAddress, delay, delayUnit);
         scheduledExecutorService.schedule(() -> {
             // log.error("服务端链接不上，开始重连操作...");
-            System.err.println(
-                    "Thread.activeCount() ... " + Thread.activeCount());
+            System.err.println("Thread.activeCount() ... " + Thread.activeCount());
             logger.debug("start reconnecting to server {}", remoteAddress);
             startConnect();
         }, delay, delayUnit);
@@ -127,15 +121,13 @@ public class NettyClient<S, R> implements Client<S, R> {
         try {
             bootstrap = facotry.create();
             // 连接服务端
-            ChannelFuture channelFuture = bootstrap
-                    .connect(remoteAddress.getHost(), remoteAddress.getPort());
+            ChannelFuture channelFuture = bootstrap.connect(remoteAddress.getHost(), remoteAddress.getPort());
 
             channelFuture.addListener(new ConnectStateListener(this));
-            // Channel channel = f.sync().channel();
             channelFuture.channel().closeFuture().sync();
 
         } catch (InterruptedException e) {
-            logger.debug(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         } finally {
             // The connection is closed automatically on shutdown.
             logger.debug("group.shutdownGracefully()");
@@ -163,11 +155,9 @@ public class NettyClient<S, R> implements Client<S, R> {
     @Override
     public void send(S sending) {
         if (state != State.CONNECTED) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createNotConnectedCode(remoteAddress));
+            throw new NetworkException(NetworkExceptionCode.createNotConnectedCode(remoteAddress));
         }
-        logger.debug("send {} -> {}", sending.getClass().getName(),
-                sending.toString());
+        logger.debug("send {} -> {}", sending.getClass().getName(), sending.toString());
         channel.writeAndFlush(sending);
     }
 
@@ -176,8 +166,7 @@ public class NettyClient<S, R> implements Client<S, R> {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <C extends Client<S, R>> C onReceive(
-            ClientReceiveListener<R> listener) {
+    public <C extends Client<S, R>> C onReceive(ClientReceiveListener<R> listener) {
         this.receiveListeners.add(listener);
         return (C) this;
     }
@@ -187,9 +176,8 @@ public class NettyClient<S, R> implements Client<S, R> {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <C extends Client<S, R>> C onConnect(
-            ClientConnectListener<R> listener) {
-        this.connectListeners.add(listener);
+    public <C extends Client<S, R>> C onConnect(ClientConnectListener listener) {
+        connectListeners.add(listener);
         return (C) this;
     }
 
@@ -198,8 +186,7 @@ public class NettyClient<S, R> implements Client<S, R> {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <C extends Client<S, R>> C onDisconnect(
-            ClientDisconnectListener listener) {
+    public <C extends Client<S, R>> C onDisconnect(ClientDisconnectListener listener) {
         this.disconnectListeners.add(listener);
         return (C) this;
     }
@@ -208,7 +195,7 @@ public class NettyClient<S, R> implements Client<S, R> {
         state = State.CONNECTED;
         this.channel = channel;
         this.reconnectTimes = 0;
-        this.connectListeners.forEach(l -> {
+        connectListeners.forEach(l -> {
             l.onConnect(event);
         });
     }
@@ -240,7 +227,7 @@ public class NettyClient<S, R> implements Client<S, R> {
 
     /**
      * 返回networkAddress
-     * 
+     *
      * @return networkAddress
      */
     public NetworkAddress getRemoteAddress() {
@@ -249,7 +236,7 @@ public class NettyClient<S, R> implements Client<S, R> {
 
     /**
      * 返回autoReconnect
-     * 
+     *
      * @return autoReconnect
      */
     public boolean isAutoReconnect() {
@@ -258,9 +245,8 @@ public class NettyClient<S, R> implements Client<S, R> {
 
     /**
      * 设置autoReconnect
-     * 
-     * @param autoReconnect
-     *            autoReconnect
+     *
+     * @param autoReconnect autoReconnect
      */
     public void setAutoReconnect(boolean autoReconnect) {
         this.autoReconnect = autoReconnect;

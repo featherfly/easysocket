@@ -14,7 +14,7 @@ public class BasicMsg extends Msg {
 
     /**
      * 返回message
-     * 
+     *
      * @return message
      */
     public String getMessage() {
@@ -23,9 +23,8 @@ public class BasicMsg extends Msg {
 
     /**
      * 设置message
-     * 
-     * @param message
-     *            message
+     *
+     * @param message message
      */
     public void setMessage(String message) {
         this.message = message;
@@ -36,7 +35,6 @@ public class BasicMsg extends Msg {
      */
     @Override
     public String toString() {
-        return "BasicMsg [message=" + message + ", sender=" + sender + ", id="
-                + id + "]";
+        return "BasicMsg [message=" + message + ", id=" + id + "]";
     }
 }

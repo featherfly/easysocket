@@ -10,13 +10,9 @@ package cn.featherfly.network.netty.msg;
  */
 public class ResponseMsg extends BasicMsg {
 
-    public enum State {
-        CONNECTING_SERVER, CONNECTING_CLIENT,
-    }
-
     private boolean success;
 
-    private State state;
+    private String code;
 
     /**
      * 返回success
@@ -30,30 +26,28 @@ public class ResponseMsg extends BasicMsg {
     /**
      * 设置success
      *
-     * @param success
-     *            success
+     * @param success success
      */
     public void setSuccess(boolean success) {
         this.success = success;
     }
 
     /**
-     * 返回state
+     * 返回code
      *
-     * @return state
+     * @return code
      */
-    public State getState() {
-        return state;
+    public String getCode() {
+        return code;
     }
 
     /**
-     * 设置state
+     * 设置code
      *
-     * @param state
-     *            state
+     * @param code code
      */
-    public void setState(State state) {
-        this.state = state;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     /**
@@ -61,8 +55,6 @@ public class ResponseMsg extends BasicMsg {
      */
     @Override
     public String toString() {
-        return "ResponseMsg [success=" + success + ", message=" + message
-                + ", state=" + state + ", sender=" + sender + ", id=" + id
-                + "]";
+        return "ResponseMsg [success=" + success + ", code=" + code + ", message=" + message + ", id=" + id + "]";
     }
 }

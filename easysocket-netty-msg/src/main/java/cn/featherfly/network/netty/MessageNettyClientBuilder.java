@@ -8,7 +8,7 @@ import cn.featherfly.network.serialization.MessageTypeRegister;
  * <p>
  * NettyClientBuilder
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class MessageNettyClientBuilder {
@@ -19,7 +19,7 @@ public class MessageNettyClientBuilder {
 
     private NetworkAddress networkAddress;
 
-    MessageTypeRegister messageTypeRegister;
+    private MessageTypeRegister messageTypeRegister;
 
     /**
      * @param networkAddress
@@ -31,54 +31,45 @@ public class MessageNettyClientBuilder {
 
     /**
      * 设置handler
-     * 
-     * @param handler
-     *            handler
+     *
+     * @param handler handler
      */
-    public MessageNettyClientBuilder handler(
-            MessageNettyClientHandlerFactory handlerFactory) {
+    public MessageNettyClientBuilder handler(MessageNettyClientHandlerFactory handlerFactory) {
         this.handlerFactory = handlerFactory;
         return this;
     }
 
-    public MessageNettyClientBuilder messageTypeRegister(
-            MessageTypeRegister messageTypeRegister) {
+    public MessageNettyClientBuilder messageTypeRegister(MessageTypeRegister messageTypeRegister) {
         this.messageTypeRegister = messageTypeRegister;
         return this;
     }
 
     /**
      * 设置facotry
-     * 
-     * @param facotry
-     *            facotry
+     *
+     * @param facotry facotry
      */
-    public MessageNettyClientBuilder bootstrap(
-            MessageNettyBootstrapFacotry bootstrapFactory) {
+    public MessageNettyClientBuilder bootstrap(MessageNettyBootstrapFacotry bootstrapFactory) {
         this.bootstrapFactory = bootstrapFactory;
         return this;
     }
 
     /**
      * 设置networkAddress
-     * 
-     * @param networkAddress
-     *            networkAddress
+     *
+     * @param networkAddress networkAddress
      */
-    public MessageNettyClientBuilder networkAddress(
-            NetworkAddress networkAddress) {
+    public MessageNettyClientBuilder networkAddress(NetworkAddress networkAddress) {
         this.networkAddress = networkAddress;
         return this;
     }
 
     public MessageNettyClient build() {
         if (bootstrapFactory == null) {
-            bootstrapFactory = new MessageNettyBootstrapFacotry(null,
-                    messageTypeRegister);
+            bootstrapFactory = new MessageNettyBootstrapFacotry(null, messageTypeRegister);
         }
 
-        MessageNettyClient client = new MessageNettyClient(networkAddress,
-                bootstrapFactory);
+        MessageNettyClient client = new MessageNettyClient(networkAddress, bootstrapFactory);
 
         if (handlerFactory == null) {
             handlerFactory = new MessageNettyClientHandlerFactory(client);

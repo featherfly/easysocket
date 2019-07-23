@@ -9,8 +9,8 @@ package cn.featherfly.network;
  * @author zhongj
  */
 @FunctionalInterface
-public interface ClientConnectListener {
+public interface ServerReceiveListener<R, RES> {
 
-    void onConnect(ClientConnectEvent event);
+    RES onReceive(ServerReceivableEvent<R, RES> event);
 
 }

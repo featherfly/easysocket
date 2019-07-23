@@ -3,11 +3,9 @@ package cn.featherfly.network.netty;
 import cn.featherfly.network.netty.msg.ClientMsg;
 import cn.featherfly.network.netty.msg.ClientRegistMsg;
 import cn.featherfly.network.netty.msg.Msg;
-import cn.featherfly.network.netty.msg.Msg.Sender;
 import io.netty.channel.ChannelHandlerContext;
 
-public class MessageNettyClientHandler
-        extends NettyClientHandler<MessageNettyClient, ClientMsg, Msg> {
+public class MessageNettyClientHandler extends NettyClientHandler<MessageNettyClient, ClientMsg, Msg> {
 
     private ClientIdGenerator clientIdGenerator;
 
@@ -23,8 +21,7 @@ public class MessageNettyClientHandler
      * @param clientIdGenerator
      * @param nettyClient
      */
-    public MessageNettyClientHandler(ClientIdGenerator clientIdGenerator,
-            MessageNettyClient nettyClient) {
+    public MessageNettyClientHandler(ClientIdGenerator clientIdGenerator, MessageNettyClient nettyClient) {
         super(nettyClient);
         this.clientIdGenerator = clientIdGenerator;
     }
@@ -37,7 +34,6 @@ public class MessageNettyClientHandler
         super.channelActive(ctx);
         ClientRegistMsg clientRegistMsg = new ClientRegistMsg();
         clientRegistMsg.setClientId(clientIdGenerator.getClientId());
-        clientRegistMsg.setSender(Sender.CLIENT);
         ctx.writeAndFlush(clientRegistMsg);
     }
 }
