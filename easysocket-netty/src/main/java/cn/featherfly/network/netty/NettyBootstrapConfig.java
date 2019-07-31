@@ -24,7 +24,7 @@ public class NettyBootstrapConfig {
     protected MessageTypeRegister messageTypeRegister;
 
     /**
-     * @param handlerFactory 处理业务的handler创建工厂
+     *
      */
     public NettyBootstrapConfig() {
     }

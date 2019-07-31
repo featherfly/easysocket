@@ -16,14 +16,14 @@ public class MessageNettyBootstrapFacotry
         extends SimpleNettyBootstrapFacotry<MessageNettyClientHandler, MessageNettyClient, ClientMsg, Msg> {
 
     /**
-     * @param handlerFactory 处理业务的handler创建工厂
+     * @param handlerFacotry 处理业务的handler创建工厂
      */
     public MessageNettyBootstrapFacotry(MessageNettyClientHandlerFactory handlerFacotry) {
         this(handlerFacotry, null);
     }
 
     /**
-     * @param handlerFactory      处理业务的handler创建工厂
+     * @param handlerFacotry      处理业务的handler创建工厂
      * @param messageTypeRegister 消息类型注册器
      */
     public MessageNettyBootstrapFacotry(MessageNettyClientHandlerFactory handlerFacotry,

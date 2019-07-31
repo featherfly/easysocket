@@ -32,7 +32,7 @@ public class MessageNettyClientBuilder {
     /**
      * 设置handler
      *
-     * @param handler handler
+     * @param handlerFactory handlerFactory
      */
     public MessageNettyClientBuilder handler(MessageNettyClientHandlerFactory handlerFactory) {
         this.handlerFactory = handlerFactory;
@@ -47,7 +47,7 @@ public class MessageNettyClientBuilder {
     /**
      * 设置facotry
      *
-     * @param facotry facotry
+     * @param bootstrapFactory bootstrapFactory
      */
     public MessageNettyClientBuilder bootstrap(MessageNettyBootstrapFacotry bootstrapFactory) {
         this.bootstrapFactory = bootstrapFactory;

@@ -29,7 +29,7 @@ public interface MessageServer extends Server<Msg, Msg, ResponseMsg> {
      * sendAndReceive,返回的Map是clientId为key,对应clientId推送信息的反馈消息为value
      *
      * @param sending
-     * @return Map<ClientId, ResponseMsg>
+     * @return Map&lt;ClientId, ResponseMsg&gt;
      */
     CompletionStage<Map<String, ResponseMsg>> sendAllAndReceive(Msg sending);
 

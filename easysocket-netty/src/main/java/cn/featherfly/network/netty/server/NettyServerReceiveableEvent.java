@@ -21,7 +21,6 @@ public class NettyServerReceiveableEvent<R, RES> implements ServerReceivableEven
     private RES response;
 
     /**
-     * @param remoteAddress
      */
     public NettyServerReceiveableEvent() {
         super();
@@ -92,7 +91,7 @@ public class NettyServerReceiveableEvent<R, RES> implements ServerReceivableEven
 
     /**
      * 返回response
-     * 
+     *
      * @return response
      */
     @Override
@@ -102,7 +101,7 @@ public class NettyServerReceiveableEvent<R, RES> implements ServerReceivableEven
 
     /**
      * 设置response
-     * 
+     *
      * @param response response
      */
     public void setResponse(RES response) {
