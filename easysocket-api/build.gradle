@@ -2,4 +2,5 @@ dependencies {
     compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.2'
     compile group: 'io.protostuff', name: 'protostuff-core', version: '1.6.0'
     compile group: 'io.protostuff', name: 'protostuff-runtime', version: '1.6.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.0'
 }
