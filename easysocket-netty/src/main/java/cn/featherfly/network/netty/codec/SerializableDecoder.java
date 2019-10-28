@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import cn.featherfly.common.lang.ClassUtils;
 import cn.featherfly.common.lang.LangUtils;
+import cn.featherfly.common.lang.NumberUtils;
+import cn.featherfly.network.codec.MessageStructure;
 import cn.featherfly.network.serialization.MessageTypeRegister;
 import cn.featherfly.network.serialization.Serializer;
 import cn.featherfly.network.serialization.SerializerRegister;
@@ -22,7 +24,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
  * *MsgDecoder*
  * </p>
  * **
- * 
+ *
  * @author zhongj
  */
 public class SerializableDecoder extends ByteToMessageDecoder {
@@ -60,8 +62,7 @@ public class SerializableDecoder extends ByteToMessageDecoder {
      * @param serializerRegister
      * @param messageTypeRegister
      */
-    public SerializableDecoder(SerializerRegister serializerRegister,
-            MessageTypeRegister messageTypeRegister) {
+    public SerializableDecoder(SerializerRegister serializerRegister, MessageTypeRegister messageTypeRegister) {
         super();
         if (serializerRegister == null) {
             serializerRegister = new SerializerRegister();
@@ -80,8 +81,7 @@ public class SerializableDecoder extends ByteToMessageDecoder {
      * {@inheritDoc}
      */
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in,
-            List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         // 这个HEAD_LENGTH是我们用于表示头长度的字节数。
         if (in.readableBytes() < HEAD_LENGTH) {
             // 由于Encoder中我们传的是一个int类型的值，所以这里HEAD_LENGTH的值为4.
@@ -110,19 +110,22 @@ public class SerializableDecoder extends ByteToMessageDecoder {
         // 读取序列化占用的一个字节
         byte serializerKey = body[0];
         byte structureKey = body[1];
-        MessageStructure structure = LangUtils.toEnum(MessageStructure.class,
-                new Integer(structureKey));
+        MessageStructure structure = LangUtils.toEnum(MessageStructure.class, new Integer(structureKey));
         if (structure == null) {
             throw new RuntimeException("未注册消息结构" + structureKey);
         }
-        if (structure == MessageStructure.TypeRegister) {
-            return convertWithMessageTypeRegister(body, serializerKey);
-        } else if (structure == MessageStructure.TypeName) {
-            return convertWithTypeName(body, serializerKey);
-        } else {
-            throw new RuntimeException("未实现消息结构" + structure + "的反序列化");
+        switch (structure) {
+            case TypeName:
+                return convertWithTypeName(body, serializerKey);
+            case TypeByteRegister:
+                return convertWithMessageTypeByteKeyRegister(body, serializerKey);
+            case TypeShortRegister:
+                return convertWithMessageTypeShortKeyRegister(body, serializerKey);
+            case TypeIntRegister:
+                return convertWithMessageTypeIntKeyRegister(body, serializerKey);
+            default:
+                throw new RuntimeException("未实现消息结构" + structure + "的反序列化");
         }
-
     }
 
     private Object convertWithTypeName(byte[] body, byte serializerKey) {
@@ -130,57 +133,54 @@ public class SerializableDecoder extends ByteToMessageDecoder {
         int start = 2;
         int end = start + Integer.BYTES;
         byte[] typeLen = ArrayUtils.subarray(body, start, end);
-        int typeNameLength = toInt(typeLen);
+        int typeNameLength = NumberUtils.toInt(typeLen);
         // 读取className占用的字节
-        byte[] typeNameBytes = ArrayUtils.subarray(body, end,
-                end + typeNameLength);
+        byte[] typeNameBytes = ArrayUtils.subarray(body, end, end + typeNameLength);
         String className = new String(typeNameBytes);
         // 读取对象序列化的字节
-        byte[] data = ArrayUtils.subarray(body, end + typeNameLength,
-                body.length);
+        byte[] data = ArrayUtils.subarray(body, end + typeNameLength, body.length);
         Serializer serializer = serializerRegister.getSerializer(serializerKey);
-        logger.debug("decode {} with {} from structure {}", className,
-                serializer.getClass().getName(), MessageStructure.TypeRegister);
+        logger.debug("decode {} with {} from structure {}", className, serializer.getClass().getName(),
+                MessageStructure.TypeName);
         return serializer.deserialize(data, ClassUtils.forName(className));
     }
 
-    private Object convertWithMessageTypeRegister(byte[] body,
-            byte serializerKey) {
+    private Object convertWithMessageTypeByteKeyRegister(byte[] body, byte serializerKey) {
+        int start = 2;
+        int end = start + Byte.BYTES;
+        short typeKey = body[start];
+        byte[] data = ArrayUtils.subarray(body, end, body.length);
+        return convertWithMessageTypeRegister(data, serializerKey, typeKey, MessageStructure.TypeByteRegister);
+    }
+
+    private Object convertWithMessageTypeShortKeyRegister(byte[] body, byte serializerKey) {
         int start = 2;
         int end = start + Short.BYTES;
         byte[] typeBytes = ArrayUtils.subarray(body, start, end);
-        short typeKey = toShort(typeBytes);
+        short typeKey = NumberUtils.toShort(typeBytes);
         byte[] data = ArrayUtils.subarray(body, end, body.length);
+        return convertWithMessageTypeRegister(data, serializerKey, typeKey, MessageStructure.TypeShortRegister);
+    }
+
+    private Object convertWithMessageTypeIntKeyRegister(byte[] body, byte serializerKey) {
+        int start = 2;
+        int end = start + Integer.BYTES;
+        byte[] typeBytes = ArrayUtils.subarray(body, start, end);
+        int typeKey = NumberUtils.toInt(typeBytes);
+        byte[] data = ArrayUtils.subarray(body, end, body.length);
+        return convertWithMessageTypeRegister(data, serializerKey, typeKey, MessageStructure.TypeIntRegister);
+    }
+
+    private Object convertWithMessageTypeRegister(byte[] data, byte serializerKey, int typeKey,
+            MessageStructure messageStructure) {
         Class<?> type = messageTypeRegister.getMessageType(typeKey);
         if (type == null) {
             throw new RuntimeException("未注册消息类型" + typeKey);
         }
         Serializer serializer = serializerRegister.getSerializer(serializerKey);
-        logger.debug("decode {} with {} from structure {} key {} ",
-                type.getName(), serializer.getClass().getName(),
-                MessageStructure.TypeRegister, typeKey);
+        logger.debug("decode {} with {} from structure {} key {} ", type.getName(), serializer.getClass().getName(),
+                messageStructure, typeKey);
         return serializer.deserialize(data, type);
     }
 
-    public int toInt(byte[] bRefArr) {
-        int iOutcome = 0;
-        byte bLoop;
-
-        for (int i = 0; i < bRefArr.length; i++) {
-            bLoop = bRefArr[i];
-            iOutcome += (bLoop & 0xFF) << (8 * i);
-        }
-        return iOutcome;
-    }
-
-    public static short toShort(byte[] bRefArr) {
-        short iOutcome = 0;
-        byte bLoop;
-
-        for (int i = 0; i < bRefArr.length; i++) {
-            bLoop = bRefArr[i];
-            iOutcome += (bLoop & 0xFF) << (8 * i);
-        }
-        return iOutcome;
-    }
 }

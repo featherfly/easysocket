@@ -61,3 +61,9 @@ code:
       name: "className"
     - type: "java.lang.String"
       name: "errorMessage"
+  - num: 10005
+    key: "message_type_register_error"
+    name: "MessageTypeRegisterError"
+    messages:
+      zh: "注册MessageStructure出错，只能注册TypeByteRegister, TypeShortRegister, TypeIntRegister"
+      en: "register [MessageStructure] error, can only register [TypeByteRegister, TypeShortRegister, TypeIntRegister]"

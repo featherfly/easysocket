@@ -5,6 +5,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.featherfly.common.lang.NumberUtils;
+import cn.featherfly.network.codec.MessageStructure;
 import cn.featherfly.network.serialization.MessageTypeRegister;
 import cn.featherfly.network.serialization.Serializer;
 import cn.featherfly.network.serialization.Serializers;
@@ -16,7 +18,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * <p>
  * MsgEncoder
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class SerializableEncoder extends MessageToByteEncoder<Object> {
@@ -37,7 +39,6 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
     }
 
     /**
-     * 
      * @param messageTypeRegister
      */
     public SerializableEncoder(MessageTypeRegister messageTypeRegister) {
@@ -58,13 +59,11 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
     }
 
     /**
-     * 
      * @param serializer
      * @param serializerKey
      * @param messageTypeRegister
      */
-    public SerializableEncoder(Serializer serializer, byte serializerKey,
-            MessageTypeRegister messageTypeRegister) {
+    public SerializableEncoder(Serializer serializer, byte serializerKey, MessageTypeRegister messageTypeRegister) {
         super();
         this.serializer = serializer;
         this.serializerKey = serializerKey;
@@ -73,7 +72,7 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
 
     /**
      * 返回serializer
-     * 
+     *
      * @return serializer
      */
     public Serializer getSerializer() {
@@ -82,9 +81,8 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
 
     /**
      * 设置serializer
-     * 
-     * @param serializer
-     *            serializer
+     *
+     * @param serializer serializer
      */
     public void setSerializer(Serializer serializer) {
         this.serializer = serializer;
@@ -92,7 +90,7 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
 
     /**
      * 返回serializerKey
-     * 
+     *
      * @return serializerKey
      */
     public byte getSerializerKey() {
@@ -101,9 +99,8 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
 
     /**
      * 设置serializerKey
-     * 
-     * @param serializerKey
-     *            serializerKey
+     *
+     * @param serializerKey serializerKey
      */
     public void setSerializerKey(byte serializerKey) {
         this.serializerKey = serializerKey;
@@ -111,7 +108,7 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
 
     /**
      * 返回messageTypeRegister
-     * 
+     *
      * @return messageTypeRegister
      */
     public MessageTypeRegister getMessageTypeRegister() {
@@ -120,12 +117,10 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
 
     /**
      * 设置messageTypeRegister
-     * 
-     * @param messageTypeRegister
-     *            messageTypeRegister
+     *
+     * @param messageTypeRegister messageTypeRegister
      */
-    public void setMessageTypeRegister(
-            MessageTypeRegister messageTypeRegister) {
+    public void setMessageTypeRegister(MessageTypeRegister messageTypeRegister) {
         this.messageTypeRegister = messageTypeRegister;
     }
 
@@ -133,8 +128,7 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
      * {@inheritDoc}
      */
     @Override
-    protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out)
-            throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
         if (messageTypeRegister == null) {
             encode(msg, out);
         } else {
@@ -143,15 +137,13 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
     }
 
     private void encode(Object msg, ByteBuf out) {
-        logger.debug("encode {} with {} to structure {}",
-                msg.getClass().getName(), serializer.getClass().getName(),
+        logger.debug("encode {} with {} to structure {}", msg.getClass().getName(), serializer.getClass().getName(),
                 MessageStructure.TypeName);
         byte[] typeBytes = msg.getClass().getName().getBytes();
-        byte[] typeLengthBytes = toByteArray(typeBytes.length);
+        byte[] typeLengthBytes = NumberUtils.toByteArray(typeBytes.length);
         byte[] dataBytes = serializer.serialize(msg);
 
-        byte[] body = new byte[] { serializerKey,
-                (byte) MessageStructure.TypeName.ordinal() };
+        byte[] body = new byte[] { serializerKey, (byte) MessageStructure.TypeName.ordinal() };
         body = ArrayUtils.addAll(body, typeLengthBytes);
         body = ArrayUtils.addAll(body, typeBytes);
         body = ArrayUtils.addAll(body, dataBytes);
@@ -162,39 +154,35 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
     }
 
     private void encodeWithMessageTypeRegister(Object msg, ByteBuf out) {
-        Short key = messageTypeRegister.getKey(msg.getClass());
+        Integer key = messageTypeRegister.getKey(msg.getClass());
         if (key == null) {
             throw new RuntimeException("未注册消息类型" + msg.getClass());
         }
-        logger.debug("encode {} with {} to structure {} key {} ",
-                msg.getClass().getName(), serializer.getClass().getName(),
-                MessageStructure.TypeRegister, key);
-        byte[] typeBytes = toByteArray(key);
-        byte[] dataBytes = serializer.serialize(msg);
+        logger.debug("encode {} with {} to structure {} key {} ", msg.getClass().getName(),
+                serializer.getClass().getName(), messageTypeRegister.getMessageStructure(), key);
 
-        byte[] body = new byte[] { serializerKey,
-                (byte) MessageStructure.TypeRegister.ordinal() };
+        byte[] typeBytes = null;
+        switch (messageTypeRegister.getMessageStructure()) {
+            case TypeByteRegister:
+                typeBytes = new byte[] { (byte) key.intValue() };
+                break;
+            case TypeShortRegister:
+                typeBytes = NumberUtils.toByteArray((short) key.intValue());
+                break;
+            case TypeIntRegister:
+                typeBytes = NumberUtils.toByteArray(key);
+                break;
+            default:
+                throw new RuntimeException("未实现消息结构" + messageTypeRegister.getMessageStructure() + "的反序列化");
+        }
+
+        byte[] dataBytes = serializer.serialize(msg);
+        byte[] body = new byte[] { serializerKey, (byte) messageTypeRegister.getMessageStructure().ordinal() };
         body = ArrayUtils.addAll(body, typeBytes);
         body = ArrayUtils.addAll(body, dataBytes);
 
         int dataLength = body.length; // 读取消息的长度
         out.writeInt(dataLength); // 先将消息长度写入，也就是消息头
         out.writeBytes(body); // 消息体中包含我们要发送的数据
-    }
-
-    private byte[] toByteArray(int iSource) {
-        byte[] bLocalArr = new byte[Integer.BYTES];
-        for (int i = 0; (i < 4) && (i < Integer.BYTES); i++) {
-            bLocalArr[i] = (byte) (iSource >> 8 * i & 0xFF);
-        }
-        return bLocalArr;
-    }
-
-    private static byte[] toByteArray(short sSource) {
-        byte[] bLocalArr = new byte[Short.BYTES];
-        for (int i = 0; (i < 4) && (i < Short.BYTES); i++) {
-            bLocalArr[i] = (byte) (sSource >> 8 * i & 0xFF);
-        }
-        return bLocalArr;
     }
 }

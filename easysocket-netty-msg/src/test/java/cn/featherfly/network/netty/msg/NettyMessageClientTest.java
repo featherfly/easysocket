@@ -17,10 +17,10 @@ public class NettyMessageClientTest {
     static MessageTypeRegister register;
     static {
         register = new MessageTypeRegister();
-        register.register(TestClientMsg.class, (short) 0);
-        register.register(ClientRegistMsg.class, (short) 1);
-        register.register(ResponseMsg.class, (short) 2);
-        register.register(BasicMsg.class, (short) 3);
+        register.register(TestClientMsg.class, 0);
+        register.register(ClientRegistMsg.class, 1);
+        register.register(ResponseMsg.class, 2);
+        register.register(BasicMsg.class, 3);
     }
 
     public static void main(String[] args) {
