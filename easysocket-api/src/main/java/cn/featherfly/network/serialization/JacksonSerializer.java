@@ -3,14 +3,14 @@ package cn.featherfly.network.serialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cn.featherfly.network.NetworkException;
-import cn.featherfly.network.NetworkExceptionCode;
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
 
 /**
  * <p>
  * JacksonSerializer
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class JacksonSerializer implements Serializer {
@@ -39,9 +39,8 @@ public class JacksonSerializer implements Serializer {
         try {
             return mapper.writerFor(obj.getClass()).writeValueAsBytes(obj);
         } catch (Exception e) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createSerializeErrorCode(
-                            obj.getClass().getName(), e.getLocalizedMessage()));
+            throw new CodecException(
+                    CodecExceptionCode.createSerializeErrorCode(obj.getClass().getName(), e.getLocalizedMessage()));
         }
     }
 
@@ -53,10 +52,8 @@ public class JacksonSerializer implements Serializer {
         try {
             return mapper.readerFor(type).readValue(bytes);
         } catch (Exception e) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createDeserializeErrorCode(
-                            type.getName(), e.getLocalizedMessage()),
-                    e);
+            throw new CodecException(
+                    CodecExceptionCode.createDeserializeErrorCode(type.getName(), e.getLocalizedMessage()), e);
         }
     }
 

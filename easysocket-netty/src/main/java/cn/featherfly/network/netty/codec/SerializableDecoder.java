@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import cn.featherfly.common.lang.ClassUtils;
 import cn.featherfly.common.lang.LangUtils;
 import cn.featherfly.common.lang.NumberUtils;
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
 import cn.featherfly.network.codec.MessageStructure;
 import cn.featherfly.network.serialization.MessageTypeRegister;
 import cn.featherfly.network.serialization.Serializer;
@@ -110,9 +112,10 @@ public class SerializableDecoder extends ByteToMessageDecoder {
         // 读取序列化占用的一个字节
         byte serializerKey = body[0];
         byte structureKey = body[1];
-        MessageStructure structure = LangUtils.toEnum(MessageStructure.class, new Integer(structureKey));
+        Integer sk = new Integer(structureKey);
+        MessageStructure structure = LangUtils.toEnum(MessageStructure.class, sk);
         if (structure == null) {
-            throw new RuntimeException("未注册消息结构" + structureKey);
+            throw new CodecException(CodecExceptionCode.createNotRegisteredMessageStructureKeyCode(sk));
         }
         switch (structure) {
             case TypeName:
@@ -124,7 +127,8 @@ public class SerializableDecoder extends ByteToMessageDecoder {
             case TypeIntRegister:
                 return convertWithMessageTypeIntKeyRegister(body, serializerKey);
             default:
-                throw new RuntimeException("未实现消息结构" + structure + "的反序列化");
+                throw new CodecException(
+                        CodecExceptionCode.createNotImplementsMessageStructureDeserializeCode(structure.toString()));
         }
     }
 
@@ -175,7 +179,7 @@ public class SerializableDecoder extends ByteToMessageDecoder {
             MessageStructure messageStructure) {
         Class<?> type = messageTypeRegister.getMessageType(typeKey);
         if (type == null) {
-            throw new RuntimeException("未注册消息类型" + typeKey);
+            throw new CodecException(CodecExceptionCode.createNotRegisteredMessageTypeKeyCode(typeKey));
         }
         Serializer serializer = serializerRegister.getSerializer(serializerKey);
         logger.debug("decode {} with {} from structure {} key {} ", type.getName(), serializer.getClass().getName(),

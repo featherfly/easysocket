@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.featherfly.common.lang.NumberUtils;
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
 import cn.featherfly.network.codec.MessageStructure;
 import cn.featherfly.network.serialization.MessageTypeRegister;
 import cn.featherfly.network.serialization.Serializer;
@@ -156,7 +158,7 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
     private void encodeWithMessageTypeRegister(Object msg, ByteBuf out) {
         Integer key = messageTypeRegister.getKey(msg.getClass());
         if (key == null) {
-            throw new RuntimeException("未注册消息类型" + msg.getClass());
+            throw new CodecException(CodecExceptionCode.createNotRegisteredMessageTypeCode(msg.getClass().getName()));
         }
         logger.debug("encode {} with {} to structure {} key {} ", msg.getClass().getName(),
                 serializer.getClass().getName(), messageTypeRegister.getMessageStructure(), key);
@@ -173,7 +175,8 @@ public class SerializableEncoder extends MessageToByteEncoder<Object> {
                 typeBytes = NumberUtils.toByteArray(key);
                 break;
             default:
-                throw new RuntimeException("未实现消息结构" + messageTypeRegister.getMessageStructure() + "的反序列化");
+                throw new CodecException(CodecExceptionCode.createNotImplementsMessageStructureDeserializeCode(
+                        messageTypeRegister.getMessageStructure().toString()));
         }
 
         byte[] dataBytes = serializer.serialize(msg);

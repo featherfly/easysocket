@@ -4,6 +4,7 @@ package cn.featherfly.network.netty.server;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
+import cn.featherfly.common.exception.UnsupportedException;
 import cn.featherfly.network.MessageServer;
 import cn.featherfly.network.ServerReceivableEvent;
 import cn.featherfly.network.netty.MessageManager;
@@ -97,7 +98,7 @@ public class MessageNettyServer extends NettyServer<Msg, Msg, ResponseMsg> imple
     @Override
     public CompletionStage<Map<String, ResponseMsg>> sendAllAndReceive(Msg sending) {
         // FIXME 未实现
-        throw new RuntimeException("暂时未实现");
+        throw new UnsupportedException();
     }
 
 }

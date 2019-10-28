@@ -1,0 +1,100 @@
+author: zhongj
+packageName: cn.featherfly.network
+exception:
+  packageName: cn.featherfly.network
+  name: CodecException
+  descp: CodecException
+  author: zhongj
+code:
+  packageName: "cn.featherfly.network"
+  name: "CodecExceptionCode"
+  descp: null
+  author: "zhongj"
+  module: "EASYSOCKET"
+  codes:
+  - num: 10000
+    key: "message_type_register_error"
+    name: "MessageTypeRegisterError"
+    messages:
+      zh: "注册MessageStructure出错，只能注册TypeByteRegister, TypeShortRegister, TypeIntRegister"
+      en: "register [MessageStructure] error, can only register [TypeByteRegister, TypeShortRegister, TypeIntRegister]"
+  - num: 10001
+    key: "key_already_registered_for_serializer"
+    name: "KeyAlreadyRegisteredForSerializer"
+    messages:
+      zh: "key[{0}]已经为[{1}]注册了"
+      en: "key [{0}] already registered for serializer [{1}]"
+    argus:
+    - type: "java.lang.Byte"
+      name: "key"
+    - type: "java.lang.String"
+      name: "serializerName"
+  - num: 10002
+    key: "key_already_registered_for_type"
+    name: "KeyAlreadyRegisteredForType"
+    messages:
+      zh: "key[{0}]已经为[{1}]注册了"
+      en: "key [{0}] already registered for type [{1}]"
+    argus:
+    - type: "java.lang.Integer"
+      name: "key"
+    - type: "java.lang.String"
+      name: "messageType"
+  - num: 10003
+    key: "serialize_error"
+    name: "SerializeError"
+    messages:
+      zh: "序列化[{0}]出错 -> {1}"
+      en: "serialize [{0}] error -> {1}"
+    argus:
+    - type: "java.lang.String"
+      name: "className"
+    - type: "java.lang.String"
+      name: "errorMessage"
+  - num: 10004
+    key: "deserialize_error"
+    name: "DeserializeError"
+    messages:
+      zh: "反序列化[{0}]出错 -> {1}"
+      en: "deserialize [{0}] error -> {1}"
+    argus:
+    - type: "java.lang.String"
+      name: "className"
+    - type: "java.lang.String"
+      name: "errorMessage"
+  - num: 10005
+    key: "not_registered_message_structure_key"
+    name: "NotRegisteredMessageStructureKey"
+    messages:
+      zh: "未注册消息结构key[{0}]"
+      en: "not already message structure key [{0}]"
+    argus:
+    - type: "java.lang.Integer"
+      name: "key"
+  - num: 10006
+    key: "not_registered_message_type_key"
+    name: "NotRegisteredMessageTypeKey"
+    messages:
+      zh: "未注册消息类型key[{0}]"
+      en: "not already message type key [{0}]"
+    argus:
+    - type: "java.lang.Integer"
+      name: "key"
+  - num: 10007
+    key: "not_registered_message_type"
+    name: "NotRegisteredMessageType"
+    messages:
+      zh: "未注册消息类型[{0}]"
+      en: "not already message type [{0}]"
+    argus:
+    - type: "java.lang.String"
+      name: "typeName"
+  - num: 10008
+    key: "not_implements_message_structure_deserialize"
+    name: "NotImplementsMessageStructureDeserialize"
+    messages:
+      zh: "未实现消息结构[{0}]的反序列化"
+      en: "not implements message structure [{0}] deserialize"
+    argus:
+    - type: "java.lang.String"
+      name: "structure"

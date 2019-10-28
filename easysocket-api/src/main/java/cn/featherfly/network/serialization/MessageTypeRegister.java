@@ -4,8 +4,8 @@ package cn.featherfly.network.serialization;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.featherfly.network.NetworkException;
-import cn.featherfly.network.NetworkExceptionCode;
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
 import cn.featherfly.network.codec.MessageStructure;
 
 /**
@@ -37,7 +37,7 @@ public class MessageTypeRegister {
         if (messageStructure == null) {
             this.messageStructure = MessageStructure.TypeByteRegister;
         } else if (messageStructure == MessageStructure.TypeName) {
-            throw new NetworkException(NetworkExceptionCode.createMessageTypeRegisterErrorCode());
+            throw new CodecException(CodecExceptionCode.createMessageTypeRegisterErrorCode());
         }
         this.messageStructure = messageStructure;
     }
@@ -60,7 +60,8 @@ public class MessageTypeRegister {
      */
     public MessageTypeRegister register(Class<?> type, int key) {
         if (messageTypes.containsKey(key)) {
-            throw new RuntimeException("key" + key + "已被" + messageTypes.get(key) + "注册");
+            throw new CodecException(
+                    CodecExceptionCode.createKeyAlreadyRegisteredForTypeCode(key, messageTypes.get(key).getName()));
         }
         messageTypes.put(key, type);
         return this;

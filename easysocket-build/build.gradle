@@ -21,7 +21,8 @@ dependencies {
 
 ext {
     exceptions = [
-            ['yaml':'gentool/exceptions/network-exception.yaml', 'taskName' : 'network']
+            ['yaml':'gentool/exceptions/network-exception.yaml', 'taskName' : 'network'],
+            ['yaml':'gentool/exceptions/codec-exception.yaml', 'taskName' : 'codec']
     ]
 }
 

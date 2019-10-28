@@ -53,10 +53,7 @@ public class NetworkExceptionCode extends cn.featherfly.common.exception.SimpleL
         
         EASYSOCKET10000("no_registered_client", 10000),
         EASYSOCKET10001("connect_failure", 10001),
-        EASYSOCKET10002("not_connected", 10002),
-        EASYSOCKET10003("serialize_error", 10003),
-        EASYSOCKET10004("deserialize_error", 10004),
-        EASYSOCKET10005("message_type_register_error", 10005);
+        EASYSOCKET10002("not_connected", 10002);
                 
         private String key;
         
@@ -130,51 +127,6 @@ public class NetworkExceptionCode extends cn.featherfly.common.exception.SimpleL
         return new NetworkExceptionCode(NetworkExceptionCodes.EASYSOCKET10002.num
                 , NetworkExceptionCodes.EASYSOCKET10002.key
                 , new Object[] {networkAddress});
-    }
-    
-    /**
-     * <p>
-     * create SerializeErrorCode
-     * </p>
-     * @param className className
-     * @param errorMessage errorMessage
-     * 
-     * @return SerializeErrorCode
-     */
-    public static NetworkExceptionCode createSerializeErrorCode(
-        java.lang.String className, java.lang.String errorMessage) {
-        return new NetworkExceptionCode(NetworkExceptionCodes.EASYSOCKET10003.num
-                , NetworkExceptionCodes.EASYSOCKET10003.key
-                , new Object[] {className, errorMessage});
-    }
-    
-    /**
-     * <p>
-     * create DeserializeErrorCode
-     * </p>
-     * @param className className
-     * @param errorMessage errorMessage
-     * 
-     * @return DeserializeErrorCode
-     */
-    public static NetworkExceptionCode createDeserializeErrorCode(
-        java.lang.String className, java.lang.String errorMessage) {
-        return new NetworkExceptionCode(NetworkExceptionCodes.EASYSOCKET10004.num
-                , NetworkExceptionCodes.EASYSOCKET10004.key
-                , new Object[] {className, errorMessage});
-    }
-    
-    /**
-     * <p>
-     * create MessageTypeRegisterErrorCode
-     * </p>
-     * 
-     * @return MessageTypeRegisterErrorCode
-     */
-    public static NetworkExceptionCode createMessageTypeRegisterErrorCode(
-        ) {
-        return new NetworkExceptionCode(NetworkExceptionCodes.EASYSOCKET10005.num
-                , NetworkExceptionCodes.EASYSOCKET10005.key);
     }
     
 }

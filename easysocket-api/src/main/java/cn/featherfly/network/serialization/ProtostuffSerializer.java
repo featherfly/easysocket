@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.featherfly.network.NetworkException;
-import cn.featherfly.network.NetworkExceptionCode;
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
@@ -16,7 +16,7 @@ import io.protostuff.runtime.RuntimeSchema;
  * <p>
  * ProtostuffSerializer
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class ProtostuffSerializer implements Serializer {
@@ -24,8 +24,7 @@ public class ProtostuffSerializer implements Serializer {
     /**
      * 避免每次序列化都重新申请Buffer空间
      */
-    private static LinkedBuffer buffer = LinkedBuffer
-            .allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
+    private static LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
     /**
      * 缓存Schema
      */
@@ -57,10 +56,8 @@ public class ProtostuffSerializer implements Serializer {
         try {
             data = ProtostuffIOUtil.toByteArray(obj, schema, buffer);
         } catch (Exception e) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createSerializeErrorCode(
-                            obj.getClass().getName(), e.getLocalizedMessage()),
-                    e);
+            throw new CodecException(
+                    CodecExceptionCode.createSerializeErrorCode(obj.getClass().getName(), e.getLocalizedMessage()), e);
         } finally {
             buffer.clear();
         }
@@ -77,9 +74,8 @@ public class ProtostuffSerializer implements Serializer {
         try {
             ProtostuffIOUtil.mergeFrom(bytes, obj, schema);
         } catch (Exception e) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createDeserializeErrorCode(
-                            obj.getClass().getName(), e.getLocalizedMessage()),
+            throw new CodecException(
+                    CodecExceptionCode.createDeserializeErrorCode(obj.getClass().getName(), e.getLocalizedMessage()),
                     e);
         }
         return obj;

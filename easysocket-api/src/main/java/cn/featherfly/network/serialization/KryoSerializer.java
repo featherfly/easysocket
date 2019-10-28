@@ -8,14 +8,14 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import cn.featherfly.network.NetworkException;
-import cn.featherfly.network.NetworkExceptionCode;
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
 
 /**
  * <p>
  * KryoSerializer
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class KryoSerializer implements Serializer {
@@ -38,7 +38,7 @@ public class KryoSerializer implements Serializer {
 
     /**
      * 返回kryo
-     * 
+     *
      * @return kryo
      */
     public Kryo getKryo() {
@@ -47,9 +47,8 @@ public class KryoSerializer implements Serializer {
 
     /**
      * 设置kryo
-     * 
-     * @param kryo
-     *            kryo
+     *
+     * @param kryo kryo
      */
     public void setKryo(Kryo kryo) {
         this.kryo = kryo;
@@ -60,16 +59,13 @@ public class KryoSerializer implements Serializer {
      */
     @Override
     public <O> byte[] serialize(O obj) {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                Output output = new Output(bos)) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); Output output = new Output(bos)) {
             kryo.writeObject(output, obj);
             output.flush();
             return bos.toByteArray();
         } catch (Exception e) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createSerializeErrorCode(
-                            obj.getClass().getName(), e.getLocalizedMessage()),
-                    e);
+            throw new CodecException(
+                    CodecExceptionCode.createSerializeErrorCode(obj.getClass().getName(), e.getLocalizedMessage()), e);
         }
     }
 
@@ -78,14 +74,11 @@ public class KryoSerializer implements Serializer {
      */
     @Override
     public <O> O deserialize(byte[] bytes, Class<O> type) {
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                Input input = new Input(bais)) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes); Input input = new Input(bais)) {
             return kryo.readObject(input, type);
         } catch (Exception e) {
-            throw new NetworkException(
-                    NetworkExceptionCode.createDeserializeErrorCode(
-                            type.getName(), e.getLocalizedMessage()),
-                    e);
+            throw new CodecException(
+                    CodecExceptionCode.createDeserializeErrorCode(type.getName(), e.getLocalizedMessage()), e);
         }
     }
 

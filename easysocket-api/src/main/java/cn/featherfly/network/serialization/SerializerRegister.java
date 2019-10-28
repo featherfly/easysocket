@@ -4,11 +4,14 @@ package cn.featherfly.network.serialization;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.featherfly.network.CodecException;
+import cn.featherfly.network.CodecExceptionCode;
+
 /**
  * <p>
  * SerializerRegister
  * </p>
- * 
+ *
  * @author zhongj
  */
 public class SerializerRegister {
@@ -21,7 +24,8 @@ public class SerializerRegister {
 
     public SerializerRegister register(Serializer serializer, byte key) {
         if (serializers.containsKey(key)) {
-            throw new RuntimeException("key已注册");
+            throw new CodecException(CodecExceptionCode.createKeyAlreadyRegisteredForSerializerCode(key,
+                    serializer.getClass().getName()));
         }
         serializers.put(key, serializer);
         return this;
