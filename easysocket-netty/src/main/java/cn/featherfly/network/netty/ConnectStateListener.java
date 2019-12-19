@@ -24,26 +24,19 @@ public class ConnectStateListener implements ChannelFutureListener {
     }
 
     @Override
-    public void operationComplete(ChannelFuture channelFuture)
-            throws Exception {
+    public void operationComplete(ChannelFuture channelFuture) throws Exception {
         if (channelFuture.isSuccess()) {
-            logger.debug("服务端[{}]链接成功...",
-                    channelFuture.channel().remoteAddress());
-            NettyClientConnectEvent event = new NettyClientConnectEvent(
-                    nettyClient.getRemoteAddress(), true);
+            logger.debug("connect to server [{}] success...", channelFuture.channel().remoteAddress());
+            NettyClientConnectEvent event = new NettyClientConnectEvent(nettyClient.getRemoteAddress(), true);
             nettyClient.fireConnect(event, channelFuture.channel());
         } else {
-            logger.debug("服务端[{}]链接失败...",
-                    channelFuture.channel().remoteAddress());
-            NettyClientConnectEvent event = new NettyClientConnectEvent(
-                    nettyClient.getRemoteAddress(), false);
+            logger.debug("connect to server [{}] failure...", channelFuture.channel().remoteAddress());
+            NettyClientConnectEvent event = new NettyClientConnectEvent(nettyClient.getRemoteAddress(), false);
             nettyClient.fireConnect(event, channelFuture.channel());
 
-            if (nettyClient.getState() == State.CONNECTING
-                    || nettyClient.getState() == State.CONNECTED) {
+            if (nettyClient.getState() == State.CONNECTING || nettyClient.getState() == State.CONNECTED) {
                 nettyClient.setState(State.PREPARATION);
             }
-            System.out.println(nettyClient.getState());
             nettyClient.reconnect();
         }
     }

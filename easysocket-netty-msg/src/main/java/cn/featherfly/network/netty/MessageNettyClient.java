@@ -40,7 +40,7 @@ public class MessageNettyClient extends NettyClient<ClientMsg, Msg> implements M
         if (state != State.CONNECTED) {
             throw new NetworkException(NetworkExceptionCode.createNotConnectedCode(remoteAddress));
         }
-        logger.debug("send {} -> {}", sending.getClass().getName(), sending.toString());
+        logger.debug("send {} -> {}", sending.getClass().getName(), sending);
         channel.writeAndFlush(sending);
         return messageManager.putSendMessage(sending);
     }
