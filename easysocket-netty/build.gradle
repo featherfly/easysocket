@@ -1,4 +1,4 @@
 dependencies {
     compile project(":easysocket-api")
-    
+    compile group: 'io.netty', name: 'netty-all', version: nettyVersion    
 }
